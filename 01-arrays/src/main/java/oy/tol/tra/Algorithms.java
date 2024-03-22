@@ -2,6 +2,8 @@ package oy.tol.tra;
 
 public class Algorithms {
 
+
+
     public static <T> void reverse(T[] array) {
         int left = 0;
         int right = array.length - 1;
