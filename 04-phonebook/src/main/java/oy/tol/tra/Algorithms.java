@@ -5,6 +5,8 @@ import java.util.function.Predicate;
 
 public class Algorithms {
 
+
+
     public static <T extends Comparable<T>> void fastSort(T[] array){
         if(array==null||array.length==0){
             return;
