@@ -13,8 +13,8 @@ package oy.tol.tra;
  */
 public class StackImplementation<E> implements StackInterface<E> {
 
-   private Object [] itemArray;
    private int capacity;
+   private Object [] itemArray;
    private int currentIndex = -1;
    private static final int DEFAULT_STACK_SIZE = 10;
 
@@ -23,6 +23,7 @@ public class StackImplementation<E> implements StackInterface<E> {
     * @throws StackAllocationException
     */
    public StackImplementation() throws StackAllocationException {
+      this(DEFAULT_STACK_SIZE);
       // TODO: call the constructor with size parameter with default size of 10.
       
    }
@@ -35,17 +36,51 @@ public class StackImplementation<E> implements StackInterface<E> {
     * @throws StackAllocationException If cannot allocate room for the internal array.
     */
    public StackImplementation(int capacity) throws StackAllocationException {
+      if(capacity<2){
+         throw new StackAllocationException("Stack capacity must be greater than or equal to 2");
+      }
+      try{
+         itemArray=new Object[capacity];
+      }
+      catch(OutOfMemoryError e){
+         throw new StackAllocationException("There is no room for the internal array");
+      }
+      this.capacity=capacity;
       
    }
 
    @Override
    public int capacity() {
+      return capacity;
       // TODO: Implement this
       
    }
 
    @Override
    public void push(E element) throws StackAllocationException, NullPointerException {
+      if(element==null){
+         throw new NullPointerException("The element that need to push cannot be null");
+      }
+      if(currentIndex+1>=capacity){
+         Object [] newArray;
+         int newCapacity=capacity*2;
+         
+         try{
+            newArray=new Object [newCapacity];
+            for(int i=0; i<itemArray.length; i++){
+               newArray[i]=itemArray[i];
+            }
+            
+            capacity=newCapacity;
+            itemArray=newArray;
+            
+         }
+         catch(Exception e){
+            throw new StackAllocationException("Allocating room for the internal array is forbidden");
+         }
+      }
+      itemArray[++currentIndex]=element;
+      
       // TODO: Implement this
                
    }
@@ -53,30 +88,48 @@ public class StackImplementation<E> implements StackInterface<E> {
    @SuppressWarnings("unchecked")
    @Override
    public E pop() throws StackIsEmptyException {
+      if(isEmpty()){
+         throw new StackIsEmptyException("Stack is null");
+      }
+      E poppedElement=(E) itemArray[currentIndex];
+      itemArray[currentIndex]=null;
+      
+      
+      currentIndex--;
+      return (E) poppedElement;
       
    }
 
    @SuppressWarnings("unchecked")
    @Override
    public E peek() throws StackIsEmptyException {
-      
+      if(isEmpty()){
+         throw new StackIsEmptyException("Stack is empty");
+      }
+      return (E) itemArray[currentIndex];
    }
 
    @Override
    public int size() {
+      return currentIndex+1;
       // TODO: Implement this
       
    }
 
    @Override
    public void clear() {
+      for(int i=0; i <= currentIndex; i++){
+         itemArray[i]=null;
+      }
+      currentIndex=-1;
       // TODO: Implement this
       
    }
 
    @Override
    public boolean isEmpty() {
-      // TODO: Implement this
+      return currentIndex==-1;
+      // TODO: Implement this 
       
    }
 

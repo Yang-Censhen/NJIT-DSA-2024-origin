@@ -1,13 +1,12 @@
 package oy.tol.tra;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 @DisplayName("Basic tests for the linear search method.")
 public class LinearSearchTests {
