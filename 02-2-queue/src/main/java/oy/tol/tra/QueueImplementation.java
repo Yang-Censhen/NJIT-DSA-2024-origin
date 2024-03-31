@@ -1,97 +1,109 @@
 package oy.tol.tra;
 
-import java.util.Arrays;
-
 public class QueueImplementation<E> implements QueueInterface<E> {
-
-
-
-    private static final int DEFAULT_CAPACITY = 10;
-    
-    private int size;
+    private Object[] itemArray;
     private int capacity;
-    private E[] array;
+    private int size = 0;
+    private int head = 0;
+    private int tail = 0;
 
-    @SuppressWarnings("unchecked")
+    private static final int DEFAULT_QUEUE_SIZE = 10;
+
+    public QueueImplementation() throws QueueAllocationException {
+        capacity = DEFAULT_QUEUE_SIZE;
+        itemArray = new Object[DEFAULT_QUEUE_SIZE];
+    }
     public QueueImplementation(int capacity) {
-        this.capacity = capacity > 0 ? capacity : DEFAULT_CAPACITY;
-        this.array = (E[]) new Object[this.capacity];
+        this.capacity = capacity;
+        this.itemArray = (E[]) new Object[capacity];
+        this.head = 0;
+        this.tail = 0;
         this.size = 0;
     }
 
-    public QueueImplementation() {
-        this(DEFAULT_CAPACITY);
-    }
 
     @Override
     public int capacity() {
         return capacity;
     }
-    
+
     @Override
-    public int size() {
-        return size;
-    }
-    
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
-    }
-    
-    @Override
-    public void enqueue(E element) {
+    public void enqueue(E element) throws QueueAllocationException, NullPointerException {
         if (element == null) {
             throw new NullPointerException("Elements cannot be null");
         }
         if (size == capacity) {
-            reallocate();
+            try {
+                int newCapacity = 2 * capacity;
+                Object[] newArray = new Object[newCapacity];
+                for (int i = 0; i < size; i++) {
+                    newArray[i] = itemArray[(head + i) % capacity];
+                }
+                itemArray = newArray;
+                head = 0;
+                tail = size;
+                capacity = newCapacity;
+            } catch (OutOfMemoryError e) {
+                throw new QueueAllocationException("There is no more room for the queue");
+            }
         }
-        array[size++] = element;
+        itemArray[tail] = element;
+        tail = (tail + 1) % capacity;
+        size++;
     }
 
     @Override
-    public E dequeue() {
+    public E dequeue() throws QueueIsEmptyException {
         if (isEmpty()) {
             throw new QueueIsEmptyException("Queue is empty");
         }
-        E element = array[0];
-        System.arraycopy(array, 1, array, 0, --size);
+        E element = (E) itemArray[head];
+        itemArray[head] = null;
+        head = (head + 1) % capacity;
+        size--;
         return element;
     }
 
     @Override
-    public E element() {
-        if (isEmpty()) {
+    public E element() throws QueueIsEmptyException {
+        if (size == 0) {
             throw new QueueIsEmptyException("Queue is empty");
         }
-        return (E) array[0];
+        return (E) itemArray[head];
     }
-
-
     @Override
     public void clear() {
-        Arrays.fill(array, null);
-        size = 0;
+        for (int i = 0; i < capacity; i++) {
+            itemArray[i] = null;
+        }
+        this.head = 0;
+        this.tail = 0;
+        this.size = 0;
+    }
+    @Override
+    public int size() {
+        return size;
     }
 
-    @SuppressWarnings("unchecked")
-    private void reallocate() {
-        capacity = 2*capacity;
-        E[] newArray = (E[]) new Object[capacity];
-        System.arraycopy(array, 0, newArray, 0, size);
-        array = newArray;
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("[");
+        if (size == 0) {
+            return "[]";
+        }
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
         for (int i = 0; i < size; i++) {
-            sb.append(array[i]);
+            builder.append(itemArray[(head + i) % capacity].toString());
             if (i < size - 1) {
-                sb.append(", ");
+                builder.append(", ");
             }
         }
-        sb.append("]");
-        return sb.toString();
+        builder.append("]");
+        return builder.toString();
     }
 }
